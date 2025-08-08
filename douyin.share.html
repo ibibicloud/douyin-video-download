@@ -62,7 +62,7 @@
                     type: 'GET',
                     success: function(response) {
                         // 检查响应是否包含必要的下载信息
-                        if (response.success && response.video.uri && response.desc) {
+                        if (response.success && response.data.video.uri && response.data.desc) {
                             showMessage('视频提取成功，开始下载...', 'success');
                             // 触发自动下载，直接由浏览器处理
                             triggerDownload(response.video.uri, response.desc);
