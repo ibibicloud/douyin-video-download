@@ -57,7 +57,7 @@ export async function onRequestGet(context) {
         return new Response(
             JSON.stringify({
                 redirectUrl: response.url,
-                jsonData: jsonData[1] || [],
+                jsonData: (jsonData[1] && JSON.parse(jsonData[1])) || [],
                 // title: title[1] || '',
                 // // title: title,
                 video_id: video_id[1] || '',
