@@ -43,13 +43,21 @@ export async function onRequestGet(context) {
         const sourceCode = await response.text();
         // 正则匹配 title
         const title = await sourceCode.match(/<title>(.*?) - 抖音<\/title>/);
+
+        // const aweme_id = await sourceCode.match(/"aweme_id":"(.*?)"/);
+        // const desc = await sourceCode.match(/"desc":"(.*?)"/);
+        // const create_time = await sourceCode.match(/"create_time":(.*?),/);
+        // const desc = await sourceCode.match(/"desc":"(.*?)"/);
+
+        const jsonData = await sourceCode.match(/window._ROUTER_DATA = (.*?)<\/script>/);
+
         // 正则匹配 video_id
         const video_id = await sourceCode.match(/video_id=(.*?)["&]/);
 
         return new Response(
             JSON.stringify({
                 redirectUrl: response.url,
-                sourceCode,
+                jsonData,
                 // title: title[1] || '',
                 // // title: title,
                 video_id: video_id[1] || '',
