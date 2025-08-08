@@ -1,5 +1,4 @@
-// 处理GET请求：通过url参数传递短网址，如 /api/fetch-source?url=https://短网址
-// 新增功能：模拟iPhone 14设备请求
+
 export async function onRequestGet(context) {
   const { request, env, params } = context;
   const urlParams = new URL(request.url).searchParams;
@@ -30,21 +29,25 @@ export async function onRequestGet(context) {
         // 可选：Cloudflare地理位置模拟（如需要模拟iPhone 14常用地区）
         // country: 'US' // 例如模拟美国地区的请求
       },
-      headers: iphone14Headers // 关键：添加设备头信息
+      headers: iphone14Headers
     });
 
     if (!response.ok) {
       return new Response(`目标页面请求失败，状态码：${response.status}`, { status: 500 });
     }
 
+    // 获取移动端网页源代码
     const sourceCode = await response.text();
+    // 正则匹配 title
+    const title = await sourceCode.match(/<title>(.*?) - 抖音<\/title>/);
+    // 正则匹配 video_id
+    const video_id = await sourceCode.match(/video_id=(.*?)["&]/);
 
     return new Response(
       JSON.stringify({
         redirectUrl: response.url,
-        sourceCode: sourceCode,
-        // 新增：返回模拟的设备信息（方便调试）
-        simulatedDevice: 'iPhone 14'
+        title: title[1] || '',
+        video_id: video_id[1] || '',
       }),
       {
         headers: {
