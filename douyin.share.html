@@ -101,20 +101,34 @@
 
             // 触发文件下载，直接由浏览器处理
             function triggerDownload(url, fileName) {
-                // 创建一个隐藏的a标签来触发下载
-                const anchor = document.createElement('a');
-                anchor.href = 'https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + url;
-                anchor.download = fileName; // 设置下载文件名
-                anchor.style.display = 'none';
-                
-                // 添加到文档并触发点击
-                document.body.appendChild(anchor);
-                anchor.click();
-                
-                // 清理
-                setTimeout(() => {
-                    document.body.removeChild(anchor);
-                }, 100);
+                let url = 'https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + url;
+                // 跨域：通过 fetch 转换为 blob URL 绕过限制
+                fetch(url, {
+                    mode: 'cors',
+                    referrerPolicy: 'no-referrer' // 避免携带 referer 导致跨域问题
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('下载链接无效');
+                    return response.blob();
+                })
+                .then(blob => {
+                    // 创建 blob URL
+                    const blobUrl = URL.createObjectURL(blob);
+                    const anchor = document.createElement('a');
+                    anchor.href = blobUrl;
+                    anchor.download = fileName;
+                    document.body.appendChild(anchor);
+                    anchor.click();
+                    // 清理 blob URL 和 a 标签
+                    setTimeout(() => {
+                        document.body.removeChild(anchor);
+                        URL.revokeObjectURL(blobUrl); // 释放内存
+                    }, 100);
+                })
+                .catch(error => {
+                    showMessage('下载失败：' + error.message, 'error');
+                    console.error('跨域下载失败：', error);
+                });
             }
             
             // 支持按Enter键提交（按住Shift+Enter换行）
