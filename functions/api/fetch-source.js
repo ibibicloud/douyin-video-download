@@ -24,7 +24,7 @@ export async function onRequestGet(context) {
 
     // 校验参数
     if ( !shortUrl ) {
-        return HttpResponse('fail', '请提供短网址参数（?url=xxx）', [], 400);
+        return HttpResponse('fail', '请提供短网址参数（?url=xxx）', {}, 400);
     }
 
     // 模拟iPhone 14的请求头配置
@@ -54,21 +54,27 @@ export async function onRequestGet(context) {
         });
 
         if ( !response.ok ) {
-            return HttpResponse('fail', `目标页面请求失败，状态码：${response.status}`, [], 500);
+            return HttpResponse('fail', `目标页面请求失败，状态码：${response.status}`, {}, 500);
         }
 
         const sourceCode = await response.text();
         const loaderDataString = await sourceCode.match(/window._ROUTER_DATA = (.*?)<\/script>/);
 
         if ( !loaderDataString[1] ) {
-            return HttpResponse('fail', '网页源代码正则匹配失败', [], 400);
+            return HttpResponse('fail', '网页源代码正则匹配失败', {}, 400);
         }
 
         let loaderData = JSON.parse(loaderDataString[1]);
         loaderData = loaderData.loaderData;
+        loaderData = {
+            isSpider: loaderData.data['video_(id)/page'].isSpider,
+            aweme_id: loaderData.data['video_(id)/page'].videoInfoRes.item_list[0].aweme_id,
+            desc: loaderData.data['video_(id)/page'].videoInfoRes.item_list[0].desc,
+            create_time: loaderData.data['video_(id)/page'].videoInfoRes.item_list[0].create_time,
+        };
 
         return HttpResponse('success', '处理成功', loaderData, 200);
     } catch (error) {
-        return HttpResponse('fail', `处理失败：${error.message}`, [], 500);
+        return HttpResponse('fail', `处理失败：${error.message}`, {}, 500);
     }
 }
