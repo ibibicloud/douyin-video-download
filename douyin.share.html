@@ -101,7 +101,7 @@
 
             // 触发文件下载，直接由浏览器处理
             function triggerDownload(url, fileName) {
-                let url = 'https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + url;
+                url = 'https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + url;
                 // 跨域：通过 fetch 转换为 blob URL 绕过限制
                 fetch(url, {
                     mode: 'cors',
