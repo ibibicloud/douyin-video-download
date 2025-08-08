@@ -71,6 +71,18 @@ export async function onRequestGet(context) {
             aweme_id: loaderData.videoInfoRes.item_list[0].aweme_id,
             desc: loaderData.videoInfoRes.item_list[0].desc,
             create_time: loaderData.videoInfoRes.item_list[0].create_time,
+            author: {
+                short_id: loaderData.videoInfoRes.item_list[0].author.short_id,
+                nickname: loaderData.videoInfoRes.item_list[0].author.nickname,
+                avatar: loaderData.videoInfoRes.item_list[0].author.avatar_thumb.url_list[0],
+            },
+            video: {
+                uri: loaderData.videoInfoRes.item_list[0].video.play_addr.uri,
+                width: loaderData.videoInfoRes.item_list[0].video.width,
+                height: loaderData.videoInfoRes.item_list[0].video.height,
+                cover: loaderData.videoInfoRes.item_list[0].video.cover.url_list[0],
+            },
+            statistics: loaderData.videoInfoRes.item_list[0].statistics,
         };
 
         return HttpResponse('success', '处理成功', loaderData, 200);
