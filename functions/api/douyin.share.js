@@ -2,8 +2,7 @@
 export async function onRequestGet(context) {
     const { request, env, params } = context;
     const urlParams = new URL(request.url).searchParams;
-    const content = urlParams.get('content');
-    const shortUrl = content.match(/https?:\/\/v\.douyin\.com\/[a-zA-Z0-9_-]+\/?/);
+    const shortUrl = urlParams.get('shortUrl');
 
     // 定义统一响应
     const HttpResponse = (success, message, data, status) => {
@@ -23,8 +22,9 @@ export async function onRequestGet(context) {
         );
     }
 
-    if ( !shortUrl[0] ) {
-        return HttpResponse('fail', '未提取到抖音分享视频的短链接', {}, 400);
+    // 校验参数
+    if ( !shortUrl ) {
+        return HttpResponse('fail', '未输入shortUrl', {}, 400);
     }
 
     // 模拟iPhone 14的请求头配置

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文本提交示例</title>
+    <title>抖音分享视频 - 无水印视频提取</title>
     <!-- 引入jQuery -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -11,7 +11,7 @@
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <h1 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-            <i class="fa fa-paper-plane text-blue-500 mr-2"></i>文本提交器
+            <i class="fa fa-paper-plane text-blue-500 mr-2"></i>抖音分享视频 - 无水印视频提取
         </h1>
         
         <div class="mb-4">
@@ -27,7 +27,7 @@
             id="submitBtn" 
             class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center justify-center"
         >
-            <i class="fa fa-send mr-2"></i>提交内容
+            <i class="fa fa-send mr-2"></i>点击提交
         </button>
         
         <div id="message" class="mt-4 p-3 rounded-md hidden"></div>
@@ -41,10 +41,15 @@
             $('#submitBtn').click(function() {
                 // 获取文本框内容
                 var textContent = $('#textInput').val().trim();
-                
                 // 简单验证
                 if (textContent === '') {
                     showMessage('请输入内容后再提交', 'error');
+                    return;
+                }
+
+                var shortUrl = textContent.match(/https?:\/\/v\.douyin\.com\/[a-zA-Z0-9_-]+\/?/);
+                if (!shortUrl[0]) {
+                    showMessage('未匹配到抖音分享视频的短链接', 'error');
                     return;
                 }
                 
@@ -53,7 +58,7 @@
                 
                 // AJAX POST请求
                 $.ajax({
-                    url: '/api/douyin.share?content=' + textContent,  // 替换为你的后端接口URL
+                    url: '/api/douyin.share?shortUrl=' + shortUrl[0],  // 替换为你的后端接口URL
                     type: 'GET',
                     success: function(response) {
                         showMessage('提交成功！', 'success');
