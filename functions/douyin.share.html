@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本提交示例</title>
+    <!-- 引入jQuery -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fa fa-paper-plane text-blue-500 mr-2"></i>文本提交器
+        </h1>
+        
+        <div class="mb-4">
+            <label for="textInput" class="block text-gray-700 mb-2 font-medium">请输入内容：</label>
+            <textarea 
+                id="textInput" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows="5" 
+                placeholder="在这里输入要提交的内容..."></textarea>
+        </div>
+        
+        <button 
+            id="submitBtn" 
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center justify-center"
+        >
+            <i class="fa fa-send mr-2"></i>提交内容
+        </button>
+        
+        <div id="message" class="mt-4 p-3 rounded-md hidden"></div>
+    </div>
+
+    <!-- 引入jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 点击提交按钮时触发
+            $('#submitBtn').click(function() {
+                // 获取文本框内容
+                var textContent = $('#textInput').val().trim();
+                
+                // 简单验证
+                if (textContent === '') {
+                    showMessage('请输入内容后再提交', 'error');
+                    return;
+                }
+                
+                // 显示加载状态
+                $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-2"></i>提交中...');
+                
+                // AJAX POST请求
+                $.ajax({
+                    url: '/api/douyin.share?content=' + textContent,  // 替换为你的后端接口URL
+                    type: 'GET',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ content: textContent }),
+                    success: function(response) {
+                        showMessage('提交成功！', 'success');
+                        $('#textInput').val(''); // 清空输入框
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('提交失败:', error);
+                        showMessage('提交失败，请稍后再试', 'error');
+                    },
+                    complete: function() {
+                        // 恢复按钮状态
+                        $('#submitBtn').prop('disabled', false).html('<i class="fa fa-send mr-2"></i>提交内容');
+                    }
+                });
+            });
+            
+            // 显示消息提示
+            function showMessage(text, type) {
+                var messageEl = $('#message');
+                messageEl.text(text).removeClass('hidden bg-green-100 text-green-800 bg-red-100 text-red-800');
+                
+                if (type === 'success') {
+                    messageEl.addClass('bg-green-100 text-green-800');
+                } else {
+                    messageEl.addClass('bg-red-100 text-red-800');
+                }
+                
+                // 3秒后自动隐藏消息
+                setTimeout(function() {
+                    messageEl.addClass('hidden');
+                }, 3000);
+            }
+            
+            // 支持按Enter键提交（按住Shift+Enter换行）
+            $('#textInput').keydown(function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    $('#submitBtn').click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
