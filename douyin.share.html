@@ -65,7 +65,7 @@
                         if (response.success && response.video.uri && response.desc) {
                             showMessage('视频提取成功，开始下载...', 'success');
                             // 触发自动下载，直接由浏览器处理
-                            triggerDownload('https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + response.video.uri, response.desc);
+                            triggerDownload(response.video.uri, response.desc);
                             // 清空输入框
                             $('#textInput').val('');
                         }
@@ -96,6 +96,24 @@
                 setTimeout(function() {
                     messageEl.addClass('hidden');
                 }, 3000);
+            }
+
+            // 触发文件下载，直接由浏览器处理
+            function triggerDownload(url, fileName) {
+                // 创建一个隐藏的a标签来触发下载
+                const anchor = document.createElement('a');
+                anchor.href = 'https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + url;
+                anchor.download = fileName; // 设置下载文件名
+                anchor.style.display = 'none';
+                
+                // 添加到文档并触发点击
+                document.body.appendChild(anchor);
+                anchor.click();
+                
+                // 清理
+                setTimeout(() => {
+                    document.body.removeChild(anchor);
+                }, 100);
             }
             
             // 支持按Enter键提交（按住Shift+Enter换行）
