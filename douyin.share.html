@@ -55,8 +55,6 @@
                 $.ajax({
                     url: '/api/douyin.share?content=' + textContent,  // 替换为你的后端接口URL
                     type: 'GET',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ content: textContent }),
                     success: function(response) {
                         showMessage('提交成功！', 'success');
                         $('#textInput').val(''); // 清空输入框
