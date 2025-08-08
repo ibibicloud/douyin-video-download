@@ -4,9 +4,27 @@ export async function onRequestGet(context) {
     const urlParams = new URL(request.url).searchParams;
     const shortUrl = urlParams.get('url');
 
+    // 定义统一响应
+    const HttpResponse = (success, message, data, status) => {
+        return new Response(
+            JSON.stringify({
+                success: success == 'success' ? true : false,
+                message,
+                data,
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                status
+            }
+        );
+    }
+
     // 校验参数
-    if (!shortUrl) {
-        return new Response('请提供短网址参数（?url=xxx）', { status: 400 });
+    if ( !shortUrl ) {
+        return HttpResponse('fail', '请提供短网址参数（?url=xxx）', [], 400);
     }
 
     // 模拟iPhone 14的请求头配置
@@ -35,41 +53,22 @@ export async function onRequestGet(context) {
             headers: iphone14Headers
         });
 
-        if (!response.ok) {
-            return new Response(`目标页面请求失败，状态码：${response.status}`, { status: 500 });
+        if ( !response.ok ) {
+            return HttpResponse('fail', `目标页面请求失败，状态码：${response.status}`, [], 500);
         }
 
-        // 获取移动端网页源代码
         const sourceCode = await response.text();
-        // 正则匹配 title
-        const title = await sourceCode.match(/<title>(.*?) - 抖音<\/title>/);
+        const loaderDataString = await sourceCode.match(/window._ROUTER_DATA = (.*?)<\/script>/);
 
-        // const aweme_id = await sourceCode.match(/"aweme_id":"(.*?)"/);
-        // const desc = await sourceCode.match(/"desc":"(.*?)"/);
-        // const create_time = await sourceCode.match(/"create_time":(.*?),/);
-        // const desc = await sourceCode.match(/"desc":"(.*?)"/);
+        if ( !loaderDataString[1] ) {
+            return HttpResponse('fail', '网页源代码正则匹配失败', [], 400);
+        }
 
-        const jsonData = await sourceCode.match(/window._ROUTER_DATA = (.*?)<\/script>/);
+        let loaderData = JSON.parse(loaderDataString[1]);
+        loaderData = loaderData.loaderData;
 
-        // 正则匹配 video_id
-        const video_id = await sourceCode.match(/video_id=(.*?)["&]/);
-
-        return new Response(
-            JSON.stringify({
-                redirectUrl: response.url,
-                jsonData: (jsonData[1] && JSON.parse(jsonData[1])) || [],
-                // title: title[1] || '',
-                // // title: title,
-                video_id: video_id[1] || '',
-            }),
-            {
-                headers: {
-                    'Content-Type': 'application/json; charset=utf-8',
-                    'Access-Control-Allow-Origin': '*'
-                }
-            }
-        );
+        return HttpResponse('success', '处理成功', loaderData, 200);
     } catch (error) {
-        return new Response(`处理失败：${error.message}`, { status: 500 });
+        return HttpResponse('fail', `处理失败：${error.message}`, [], 500);
     }
 }
