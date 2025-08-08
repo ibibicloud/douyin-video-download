@@ -65,13 +65,12 @@ export async function onRequestGet(context) {
         }
 
         let loaderData = JSON.parse(loaderDataString[1]);
-        loaderData = loaderData.loaderData;
+        loaderData = loaderData.loaderData['video_(id)/page'];
         loaderData = {
-            isSpider: loaderData["video_(id)/page"],
-            // isSpider: loaderData.data['video_(id)/page'].isSpider,
-            // aweme_id: loaderData.data['video_(id)/page'].videoInfoRes.item_list[0].aweme_id,
-            // desc: loaderData.data['video_(id)/page'].videoInfoRes.item_list[0].desc,
-            // create_time: loaderData.data['video_(id)/page'].videoInfoRes.item_list[0].create_time,
+            isSpider: loaderData.isSpider,
+            aweme_id: loaderData.videoInfoRes.item_list[0].aweme_id,
+            desc: loaderData.videoInfoRes.item_list[0].desc,
+            create_time: loaderData.videoInfoRes.item_list[0].create_time,
         };
 
         return HttpResponse('success', '处理成功', loaderData, 200);
