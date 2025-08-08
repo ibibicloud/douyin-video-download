@@ -27,7 +27,7 @@
             id="submitBtn" 
             class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center justify-center"
         >
-            <i class="fa fa-send mr-2"></i>点击提交
+            <i class="fa fa-download mr-2"></i>提取并下载
         </button>
         
         <div id="message" class="mt-4 p-3 rounded-md hidden"></div>
@@ -61,8 +61,14 @@
                     url: '/api/douyin.share?shortUrl=' + shortUrl[0],  // 替换为你的后端接口URL
                     type: 'GET',
                     success: function(response) {
-                        showMessage('提交成功！', 'success');
-                        $('#textInput').val(''); // 清空输入框
+                        // 检查响应是否包含必要的下载信息
+                        if (response.success && response.video.uri && response.desc) {
+                            showMessage('视频提取成功，开始下载...', 'success');
+                            // 触发自动下载，直接由浏览器处理
+                            triggerDownload('https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + response.video.uri, response.desc);
+                            // 清空输入框
+                            $('#textInput').val('');
+                        }
                     },
                     error: function(xhr, status, error) {
                         console.error('提交失败:', error);
