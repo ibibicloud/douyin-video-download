@@ -64,9 +64,10 @@
                     success: function(response) {
                         // 检查响应是否包含必要的下载信息
                         if (response.success && response.data.video.uri && response.data.desc) {
-                            showMessage('视频提取成功，开始下载...', 'success');
+                            // showMessage('视频提取成功，开始下载...', 'success');
                             // 触发自动下载，直接由浏览器处理
-                            triggerDownload(response.data.video.uri, response.data.desc);
+                            // triggerDownload(response.data.video.uri, response.data.desc);
+                            window.open('https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + response.data.video.uri, '_blank');
                             // 清空输入框
                             $('#textInput').val('');
                         }
@@ -97,38 +98,6 @@
                 setTimeout(function() {
                     messageEl.addClass('hidden');
                 }, 3000);
-            }
-
-            // 触发文件下载，直接由浏览器处理
-            function triggerDownload(url, fileName) {
-                url = 'https://aweme.snssdk.com/aweme/v1/play/?ratio=1080p&line=0&video_id=' + url;
-                // 跨域：通过 fetch 转换为 blob URL 绕过限制
-                fetch(url, {
-                    mode: 'cors',
-                    referrerPolicy: 'no-referrer' // 避免携带 referer 导致跨域问题
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('下载链接无效');
-                    return response.blob();
-                })
-                .then(blob => {
-                    // 创建 blob URL
-                    const blobUrl = URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = blobUrl;
-                    anchor.download = fileName;
-                    document.body.appendChild(anchor);
-                    anchor.click();
-                    // 清理 blob URL 和 a 标签
-                    setTimeout(() => {
-                        document.body.removeChild(anchor);
-                        URL.revokeObjectURL(blobUrl); // 释放内存
-                    }, 100);
-                })
-                .catch(error => {
-                    showMessage('下载失败：' + error.message, 'error');
-                    console.error('跨域下载失败：', error);
-                });
             }
             
             // 支持按Enter键提交（按住Shift+Enter换行）
